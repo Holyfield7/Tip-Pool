@@ -1,25 +1,24 @@
 {
-  "name": "contracts",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
-    "@types/node": "^25.0.0",
-    "hardhat": "^2.19.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3"
-  },
-  "directories": {
-    "test": "test"
-  },
-  "description": ""
+    "name": "tip-pool-contracts",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "test": "hardhat test",
+        "compile": "hardhat compile",
+        "deploy": "hardhat run scripts/deploy.ts --network cronosTestnet",
+        "demoFill": "hardhat run scripts/demoFill.ts --network cronosTestnet"
+    },
+    "devDependencies": {
+        "@nomiclabs/hardhat-ethers": "^3.0.0",
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "ethers": "^6.6.0",
+        "hardhat": "^2.14.0",
+        "typescript": "^5.2.0",
+        "ts-node": "^10.9.1",
+        "dotenv": "^16.0.0",
+        "chai": "^4.3.7"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^4.9.0"
+    }
 }

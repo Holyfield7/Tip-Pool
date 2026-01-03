@@ -1,0 +1,16 @@
+{
+    "name": "tip-pool-agent",
+    "version": "1.0.0",
+    "main": "src/agent.ts",
+    "scripts": {
+        "start": "ts-node src/agent.ts"
+    },
+    "dependencies": {
+        "ethers": "^6.6.0",
+        "dotenv": "^16.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.2.0",
+        "ts-node": "^10.9.1"
+    }
+}

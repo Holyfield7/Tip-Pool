@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip-Pool | Agentic Payments</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        header {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 99px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--surface);
+            color: var(--text);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+        }
+
+        .card h3 { margin-bottom: 0.5rem; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--surface);
+            font-size: 0.8rem;
+        }
+
+        code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Tip-Pool</h1>
+        <p class="subtitle">The Agentic Payment Router for the Future Economy.<br>Seamless wallets, instant tips, and ready for on-chain automation.</p>
+        
+        <div class="cta-buttons">
+            <a href="https://github.com/StartYourProject/tip-pool" class="btn btn-primary">View on GitHub</a>
+            <a href="#api" class="btn btn-outline">Read API Docs</a>
+        </div>
+    </header>
+
+    <section class="features" id="api">
+        <div class="card">
+            <h3>💸 Instant Wallets</h3>
+            <p>Automatically create wallets for every user. Check balances with <code>GET /wallets/:id</code>.</p>
+        </div>
+        <div class="card">
+            <h3>⚡ Fast Tipping</h3>
+            <p>Send funds instantly between users with <code>POST /tips</code>. Safe, transactional, and robust.</p>
+        </div>
+        <div class="card">
+            <h3>🤖 AI Ready</h3>
+            <p>Built for the future. Designed to integrate with AI Agents for automated payout handling on Cronos.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>Built for the Cronos Hackathon 2026. Powered by PHP & MySQL.</p>
+    </footer>
+
+</body>
+</html>

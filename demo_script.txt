@@ -1,0 +1,42 @@
+# Tip-Pool Demo Video Script (2 Minutes)
+
+**Setup:**
+1. Open your Vercel Landing Page in Chrome.
+2. Open Postman (or Terminal).
+3. Open your GitHub Repository.
+4. Start Recording (OBS or Screen Recorder).
+
+---
+
+**0:00 - 0:20 | Introduction**
+(Show the Vercel Landing Page)
+"Hi, I'm [Your Name]. This is Tip-Pool, an agentic payment router built for the Cronos Hackathon.
+We noticed that content creators and teams struggle to manage micro-tips and payouts efficiently. 
+Tip-Pool solves this by providing a unified specific 'Pool' where funds can be credited and instantly routed to team members wallet-to-wallet."
+
+**0:20 - 1:10 | The API Demo**
+(Switch to Postman or Terminal)
+"Let me show you the live API running locally."
+
+"First, I'm checking the live server health."
+(Run GET /) -> "It's alive."
+
+"Now, I'm creating a new user, 'Alice', and crediting her wallet with $100."
+(Run POST /wallets/credit for Alice) -> "Success. Balance is $100."
+
+"Now, Alice wants to tip Bob $25 instantly."
+(Run POST /tips) -> "Transaction complete."
+
+"If we check the database, we see the ledger is updated immediately."
+(Show GET /wallets/alice -> $75)
+(Show GET /wallets/bob -> $25)
+
+**1:10 - 1:40 | The Architecture**
+(Switch to GitHub README)
+"The system is built with a high-performance PHP backend for off-chain speed. 
+However, our roadmap includes the `TipPool.sol` smart contract (which is in our repo) to allow AI Agents to automate these payouts on the Cronos blockchain based on activity rules."
+
+**1:40 - 2:00 | Conclusion**
+(Switch back to Landing Page)
+"Tip-Pool bridges the gap between fast web2 payments and web3 automation.
+Thanks for watching!"
