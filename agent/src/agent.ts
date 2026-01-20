@@ -41,6 +41,7 @@ async function main() {
 
   while (true) {
     try {
+      console.log(`[${new Date().toLocaleTimeString()}] 💓 Heartbeat: Polling backend for tips...`);
       // 1. Fetch pending tips from backend
       const response = await fetch(`${BACKEND_URL}/tips/pending`);
       const pendingTips: any[] = await response.json();
