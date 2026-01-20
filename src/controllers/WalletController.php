@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../app/Services/Database.php';
 
 class WalletController
 {
@@ -143,8 +143,9 @@ class WalletController
                 throw new Exception("Receiver wallet not found");
             }
             
-            // Record tip (assuming tips table exists, if not we will skip or create it later)
-            // For now, let's just do the wallet transfer as requested in Phase 2
+            // Record tip
+            $stmt = $this->db->prepare("INSERT INTO tips (from_user_id, to_user_id, amount, status) VALUES (?, ?, ?, 'pending')");
+            $stmt->execute([$fromId, $toId, $amount]);
 
             $this->db->commit();
 
@@ -156,8 +157,52 @@ class WalletController
             ]);
 
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * GET PENDING TIPS
+     * Route: GET /tips/pending
+     */
+    public function pendingTips()
+    {
+        try {
+            $stmt = $this->db->query("SELECT * FROM tips WHERE status = 'pending'");
+            $tips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($tips);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * MARK TIP AS PROCESSED
+     * Route: POST /tips/process
+     * Body: { "id": 1 }
+     */
+    public function markTipProcessed()
+    {
+        $data = json_decode(file_get_contents("php://input"), true);
+        
+        if (!isset($data['id'])) {
+            http_response_code(400);
+            echo json_encode(["error" => "tip id is required"]);
+            return;
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE tips SET status = 'processed' WHERE id = ?");
+            $stmt->execute([$data['id']]);
+
+            echo json_encode(["status" => "processed", "id" => $data['id']]);
+        } catch (Exception $e) {
+            http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
         }
     }

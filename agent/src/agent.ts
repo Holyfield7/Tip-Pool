@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { Brain } from "./Brain";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -11,8 +12,12 @@ const TIPPOOL_ABI = [
   "function getBalance() view returns (uint256)",
   "function minPayout() view returns (uint256)",
   "function distribute()",
+  "function getRecipients() view returns (address[] memory, uint256[] memory)",
+  "function setRecipients(address[] calldata _recipients, uint256[] calldata _bps)",
   "event PayoutExecuted(uint256 total, address[] recipients, uint256[] amounts)"
 ];
+
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
 
 async function main() {
   if (!PRIVATE_KEY) {
@@ -30,36 +35,69 @@ async function main() {
 
   console.log("Agent running as:", wallet.address);
 
-  // On chain event listener
-  tipPool.on("TipReceived", async (from: string, amount: bigint, event: any) => {
-    console.log(`TipReceived from=${from} amount=${ethers.formatEther(amount)} CRO`);
-    try {
-      const bal: bigint = await tipPool.getBalance();
-      const min: bigint = await tipPool.minPayout();
-      console.log(`Balance=${ethers.formatEther(bal)} minPayout=${ethers.formatEther(min)}`);
+  const brain = new Brain();
 
-      if (bal >= min) {
-        console.log("Threshold met — calling distribute()");
-        const tx = await tipPool.distribute();
-        console.log("distribute tx sent:", tx.hash);
-        const receipt = await tx.wait();
-        console.log("distribute confirmed txHash:", receipt.transactionHash);
-      } else {
-        console.log("Threshold not met — waiting for more tips");
+  console.log("Agent started polling backend for pending tips...");
+
+  while (true) {
+    try {
+      // 1. Fetch pending tips from backend
+      const response = await fetch(`${BACKEND_URL}/tips/pending`);
+      const pendingTips: any[] = await response.json();
+
+      if (pendingTips.length > 0) {
+        console.log(`Found ${pendingTips.length} pending tips.`);
+
+        for (const tip of pendingTips) {
+          console.log(`Processing tip ID ${tip.id}: ${tip.amount} from User ${tip.from_user_id} to User ${tip.to_user_id}`);
+
+          // Here we would normally do on-chain stuff if needed, 
+          // but based on the prompt we just "process" them and mark them in backend.
+          // The current contract logic seems to be about distribution thresholds.
+
+          const bal: bigint = await tipPool.getBalance();
+          const min: bigint = await tipPool.minPayout();
+          console.log(`Contract Balance=${ethers.formatEther(bal)} CRO, minPayout=${ethers.formatEther(min)} CRO`);
+
+          if (bal >= min) {
+            console.log("Threshold met — consulting Brain...");
+
+            // Get current recipients
+            const [currentAddrs] = await tipPool.getRecipients();
+
+            // Ask Brain
+            const decision = await brain.decideDistribution(currentAddrs);
+            console.log("Brain decision:", decision.reasoning);
+
+            // Update Contract
+            console.log("Updating contract recipients...");
+            const configTx = await tipPool.setRecipients(decision.recipients, decision.bps);
+            await configTx.wait();
+            console.log("Contract updated.");
+
+            // Distribute
+            console.log("Calling distribute()...");
+            const tx = await tipPool.distribute();
+            await tx.wait();
+            console.log("distribute confirmed.");
+          }
+
+          // 2. Mark tip as processed in backend
+          await fetch(`${BACKEND_URL}/tips/process`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: tip.id })
+          });
+          console.log(`Tip ID ${tip.id} marked as processed.`);
+        }
       }
     } catch (err: any) {
-      console.error("Agent error:", err.message || err);
+      console.error("Agent loop error:", err.message || err);
     }
-  });
 
-  tipPool.on("PayoutExecuted", (total: bigint, recipients: string[], amounts: bigint[]) => {
-    console.log(`PayoutExecuted total=${ethers.formatEther(total)} CRO`);
-    recipients.forEach((r, i) => {
-      console.log(` -> ${r} received ${ethers.formatEther(amounts[i])} CRO`);
-    });
-  });
-
-  console.log("Agent listening for TipReceived events...");
+    // Wait 10 seconds before next poll
+    await new Promise(resolve => setTimeout(resolve, 10000));
+  }
 }
 
 main().catch((err) => {

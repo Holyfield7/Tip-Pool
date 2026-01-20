@@ -8,8 +8,6 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// Load core dependencies FIRST
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../src/controllers/UserController.php';
 require_once __DIR__ . '/../src/controllers/WalletController.php';
 
@@ -23,13 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // ===============================
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-
-// ===============================
-// Autoload / includes
-// ===============================
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../src/controllers/UserController.php';
-require_once __DIR__ . '/../src/controllers/WalletController.php';
 
 // ===============================
 // Request info
@@ -71,6 +62,16 @@ if ($method === 'POST' && $uri === 'wallets/credit') {
 // ---- TIPS ----
 if ($method === 'POST' && $uri === 'tips') {
     (new WalletController())->tip();
+    exit;
+}
+
+if ($method === 'GET' && $uri === 'tips/pending') {
+    (new WalletController())->pendingTips();
+    exit;
+}
+
+if ($method === 'POST' && $uri === 'tips/process') {
+    (new WalletController())->markTipProcessed();
     exit;
 }
 

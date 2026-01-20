@@ -1,0 +1,9 @@
+{
+    "name": "tip-pool-root",
+    "version": "1.0.0",
+    "scripts": {
+        "start:backend": "php -S localhost:9000 -t public",
+        "start:frontend": "cd frontend && npm run dev",
+        "install:all": "npm install && cd frontend && npm install && cd ../agent && npm install && cd ../contracts && npm install"
+    }
+}
