@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './index.css';
 
 interface User {
@@ -14,7 +14,7 @@ interface ActivityItem {
   time: string;
 }
 
-const API_URL = 'http://localhost:9000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'create-user' | 'hackathon'>('dashboard');
@@ -45,7 +45,7 @@ function App() {
     setTimeout(() => setMessage(null), 5000);
   };
 
-  const handeCreateUser = async (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await fetch(`${API_URL}/users`, {
@@ -60,8 +60,8 @@ function App() {
       showMessage('success', `User created with ID: ${data.user_id}`);
       addActivity('success', `New user registered: ${newUser.name} (ID: ${data.user_id})`);
       setNewUser({ name: '', email: '' });
-    } catch (err: any) {
-      showMessage('error', err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) showMessage('error', err.message);
     }
   };
 
@@ -74,7 +74,7 @@ function App() {
 
       setBalance(Number(data.balance));
       showMessage('success', `Balance retrieved for User ${checkId}`);
-    } catch (err: any) {
+    } catch {
       showMessage('error', 'User not found');
       setBalance(null);
     }
@@ -95,8 +95,8 @@ function App() {
       addActivity('info', `Funds added to Wallet ${creditData.userId}: $${creditData.amount}`);
       setCreditData({ userId: '', amount: '' });
       if (checkId === creditData.userId) handleCheckBalance();
-    } catch (err: any) {
-      showMessage('error', err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) showMessage('error', err.message);
     }
   };
 
@@ -118,8 +118,8 @@ function App() {
       showMessage('success', `Tip sent! Processing via x402 agent...`);
       addActivity('warning', `Tip recorded: $${tipData.amount} (Waiting for Agent processing)`);
       setTipData({ fromId: '', toId: '', amount: '' });
-    } catch (err: any) {
-      showMessage('error', err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) showMessage('error', err.message);
     }
   };
 
@@ -275,8 +275,8 @@ function App() {
                     <div key={act.id} className="activity-item animate-fade-in">
                       <div className="flex justify-between items-start mb-1">
                         <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${act.type === 'success' ? 'bg-green-500/10 text-green-400' :
-                            act.type === 'warning' ? 'bg-orange-500/10 text-orange-400' :
-                              act.type === 'market' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'
+                          act.type === 'warning' ? 'bg-orange-500/10 text-orange-400' :
+                            act.type === 'market' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'
                           }`}>
                           {act.type}
                         </span>
@@ -319,7 +319,7 @@ function App() {
                 <p className="text-text-muted mt-2">Create a new wallet on the Tip-Pool settlement layer.</p>
               </div>
 
-              <form onSubmit={handeCreateUser} className="space-y-6">
+              <form onSubmit={handleCreateUser} className="space-y-6">
                 <div>
                   <label>Display Name</label>
                   <input

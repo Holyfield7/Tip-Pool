@@ -2,14 +2,32 @@
     "version": 2,
     "builds": [
         {
-            "src": "public/**",
-            "use": "@vercel/static"
+            "src": "frontend/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "installCommand": "npm install",
+                "buildCommand": "npm run build"
+            }
+        },
+        {
+            "src": "public/index.php",
+            "use": "vercel-php@0.7.2"
         }
     ],
     "routes": [
         {
+            "src": "/api/(.*)",
+            "dest": "public/index.php",
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+        },
+        {
             "src": "/(.*)",
-            "dest": "/public/$1"
+            "dest": "frontend/$1",
+            "check": true
         }
     ]
 }
