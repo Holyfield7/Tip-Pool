@@ -105,7 +105,7 @@ The API is now live at `http://localhost:9000`.
 
 Tip-Pool integrates the x402 protocol for agentic payments on Cronos. The AI agent uses x402 to autonomously handle micropayments for tipping and distribution, enabling seamless Web3 payments without manual intervention.
 
-- **Contract Address**: Deployed on Cronos Testnet (update README after deployment)
+- **Contract Address**: 0xc21223249CA28397B4B6541dfFaEcC539BfF0c59 (Deployed on Cronos Testnet)
 - **x402 Adapter**: Implemented in `agent/src/x402Adapter.ts` for protocol compliance.
 
 ---

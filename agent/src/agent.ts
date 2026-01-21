@@ -1,12 +1,18 @@
-import { ethers } from "ethers";
-import { Brain } from "./Brain";
-import { X402Adapter, X402Payment } from "./x402Adapter";
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
+import { ethers } from 'ethers';
+
+import { Brain } from './Brain';
+import {
+  X402Adapter,
+  X402Payment,
+} from './x402Adapter';
+
 dotenv.config();
 
 const RPC = process.env.CRONOS_RPC_URL || "http://localhost:8545";
 const PRIVATE_KEY = process.env.AGENT_PRIVATE_KEY || "";
 const TIPPOOL_ADDRESS = process.env.TIPPOOL_ADDRESS || "";
+const USDC_ADDRESS = "0xc01efAaF7C5C61bEbFAeb358E1161b537b8bC0e0"; // USDC.e on Cronos testnet
 
 const TIPPOOL_ABI = [
   "event TipReceived(address indexed from, uint256 amount)",
@@ -35,7 +41,7 @@ async function main() {
   const tipPool = new ethers.Contract(TIPPOOL_ADDRESS, TIPPOOL_ABI, wallet);
 
   // Initialize x402 Adapter for agentic payments
-  const x402Adapter = new X402Adapter(RPC, PRIVATE_KEY, TIPPOOL_ADDRESS);
+  const x402Adapter = new X402Adapter(RPC, PRIVATE_KEY, TIPPOOL_ADDRESS, USDC_ADDRESS);
 
   console.log("Agent running as:", wallet.address);
   console.log("x402 Adapter initialized for autonomous payments");

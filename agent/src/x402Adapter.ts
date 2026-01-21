@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
 // x402 Protocol Interface for Cronos Agentic Payments
 // x402 enables AI agents to autonomously execute micropayments on Cronos EVM
@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 export interface X402Payment {
   from: string;
   to: string;
-  amount: string; // in CRO
+  amount: string; // in USDC.e (6 decimals)
   reason: string;
   agentId: string;
 }
@@ -22,10 +22,19 @@ export class X402Adapter {
   private provider: ethers.JsonRpcProvider;
   private wallet: ethers.Wallet;
   private tipPoolContract: ethers.Contract;
+  private usdcContract: ethers.Contract;
+
+  // USDC.e ABI
+  private usdcABI = [
+    "function approve(address spender, uint256 amount) returns (bool)",
+    "function transfer(address to, uint256 amount) returns (bool)",
+    "function balanceOf(address account) view returns (uint256)"
+  ];
 
   // x402 Protocol ABI (simplified for TipPool integration)
   private x402ABI = [
-    "function receivePayment(address to, uint256 amount, string reason) payable",
+    "function tip(uint256 amount)",
+    "function getBalance() view returns (uint256)",
     "function getPaymentHistory(address agent) view returns (tuple(uint256 amount, string reason, uint256 timestamp)[])",
     "event PaymentExecuted(address indexed from, address indexed to, uint256 amount, string reason)"
   ];
@@ -33,11 +42,13 @@ export class X402Adapter {
   constructor(
     rpcUrl: string,
     privateKey: string,
-    tipPoolAddress: string
+    tipPoolAddress: string,
+    usdcAddress: string
   ) {
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
     this.wallet = new ethers.Wallet(privateKey, this.provider);
     this.tipPoolContract = new ethers.Contract(tipPoolAddress, this.x402ABI, this.wallet);
+    this.usdcContract = new ethers.Contract(usdcAddress, this.usdcABI, this.wallet);
   }
 
   /**
@@ -46,19 +57,17 @@ export class X402Adapter {
    */
   async executePayment(payment: X402Payment): Promise<X402Receipt> {
     try {
-      console.log(`🔄 x402 Payment: ${payment.amount} CRO from ${payment.from} to ${payment.to} for ${payment.reason}`);
+      console.log(`🔄 x402 Payment: ${payment.amount} USDC.e from ${payment.from} to ${payment.to} for ${payment.reason}`);
 
-      // Convert amount to wei
-      const amountWei = ethers.parseEther(payment.amount);
+      // Convert amount to USDC.e units (6 decimals)
+      const amountUnits = ethers.parseUnits(payment.amount, 6);
 
-      // Execute payment via x402 protocol (using TipPool as x402 gateway)
-      const tx = await this.tipPoolContract.receivePayment(
-        payment.to,
-        amountWei,
-        payment.reason,
-        { value: amountWei }
-      );
+      // Approve TipPool to spend USDC.e
+      const approveTx = await this.usdcContract.approve(await this.tipPoolContract.getAddress(), amountUnits);
+      await approveTx.wait();
 
+      // Execute tip via x402 protocol
+      const tx = await this.tipPoolContract.tip(amountUnits);
       const receipt = await tx.wait();
 
       console.log(`✅ x402 Payment successful: ${receipt.hash}`);
@@ -102,8 +111,8 @@ export class X402Adapter {
    */
   async hasSufficientBalance(amount: string): Promise<boolean> {
     try {
-      const balance = await this.provider.getBalance(this.wallet.address);
-      const required = ethers.parseEther(amount);
+      const balance = await this.usdcContract.balanceOf(this.wallet.address);
+      const required = ethers.parseUnits(amount, 6);
       return balance >= required;
     } catch (error) {
       console.error("Failed to check balance:", error);

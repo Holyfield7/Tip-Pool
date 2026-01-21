@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+interface IERC20 {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
 contract TipPool {
     address public owner;
     uint256 public minPayout;
+    IERC20 public paymentToken; // x402 uses USDC.e for payments
     
     struct Recipient {
         address addr;
@@ -20,14 +26,21 @@ contract TipPool {
         _;
     }
 
-    constructor(uint256 _minPayout) {
+    constructor(address _paymentToken, uint256 _minPayout) {
         owner = msg.sender;
+        paymentToken = IERC20(_paymentToken);
         minPayout = _minPayout;
     }
 
-    // Receive CRO
+    // Receive CRO (fallback for compatibility)
     receive() external payable {
         emit TipReceived(msg.sender, msg.value);
+    }
+
+    // x402 Tip function using USDC.e
+    function tip(uint256 amount) external {
+        require(paymentToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        emit TipReceived(msg.sender, amount);
     }
 
     // Owner configuration
@@ -48,7 +61,7 @@ contract TipPool {
 
     // View functions
     function getBalance() external view returns (uint256) {
-        return address(this).balance;
+        return paymentToken.balanceOf(address(this));
     }
 
     function getRecipients() external view returns (address[] memory, uint256[] memory) {
@@ -77,8 +90,7 @@ contract TipPool {
         for (uint i = 0; i < recipientsList.length; i++) {
             uint256 amount = (amountToDistribute * recipientsList[i].bps) / 10000;
             if (amount > 0) {
-                (bool sent, ) = recipientsList[i].addr.call{value: amount}("");
-                require(sent, "Transfer failed");
+                require(paymentToken.transfer(recipientsList[i].addr, amount), "Transfer failed");
                 totalDistributed += amount;
                 payoutAddrs[i] = recipientsList[i].addr;
                 payoutAmts[i] = amount;

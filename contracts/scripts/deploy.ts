@@ -1,21 +1,25 @@
-import { ethers } from "hardhat";
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
+import { ethers } from 'hardhat';
+
 dotenv.config();
 
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with:", deployer.address);
 
-  // 1 CRO min payout
-  const minPayout = ethers.parseEther("1.0");
+  // USDC.e on Cronos testnet (you provided)
+  const usdcAddress = "0xc01efAaF7C5C61bEbFAeb358E1161b537b8bC0e0";
+  // Min payout: 1 USDC.e (6 decimals, so 1e6)
+  const minPayout = ethers.parseUnits("1", 6);
 
   const TipPool = await ethers.getContractFactory("TipPool");
-  const tipPool = await TipPool.deploy(minPayout);
+  const tipPool = await TipPool.deploy(usdcAddress, minPayout);
 
-  await tipPool.waitForDeployment(); // Updated for Ethers v6/Hardhat
+  await tipPool.waitForDeployment();
   console.log("TipPool deployed to:", await tipPool.getAddress());
 
-  console.log(`Min Payout set to ${ethers.formatEther(minPayout)} CRO`);
+  console.log(`Payment Token: USDC.e (${usdcAddress})`);
+  console.log(`Min Payout set to ${ethers.formatUnits(minPayout, 6)} USDC.e`);
 
   // Optional: Set default recipients for demo
   // 50% to deployer, 50% to a random address
