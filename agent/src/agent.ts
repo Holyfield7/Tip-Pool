@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { Brain } from "./Brain";
+import { X402Adapter, X402Payment } from "./x402Adapter";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -33,7 +34,11 @@ async function main() {
   const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
   const tipPool = new ethers.Contract(TIPPOOL_ADDRESS, TIPPOOL_ABI, wallet);
 
+  // Initialize x402 Adapter for agentic payments
+  const x402Adapter = new X402Adapter(RPC, PRIVATE_KEY, TIPPOOL_ADDRESS);
+
   console.log("Agent running as:", wallet.address);
+  console.log("x402 Adapter initialized for autonomous payments");
 
   const brain = new Brain();
 
@@ -52,9 +57,22 @@ async function main() {
         for (const tip of pendingTips) {
           console.log(`Processing tip ID ${tip.id}: ${tip.amount} from User ${tip.from_user_id} to User ${tip.to_user_id}`);
 
-          // Here we would normally do on-chain stuff if needed, 
-          // but based on the prompt we just "process" them and mark them in backend.
-          // The current contract logic seems to be about distribution thresholds.
+          // Use x402 to execute the tip payment autonomously
+          const x402Payment: X402Payment = {
+            from: wallet.address,
+            to: TIPPOOL_ADDRESS,
+            amount: tip.amount.toString(),
+            reason: `Tip from User ${tip.from_user_id} to User ${tip.to_user_id}`,
+            agentId: wallet.address
+          };
+
+          const receipt = await x402Adapter.executePayment(x402Payment);
+          if (!receipt.success) {
+            console.error("x402 Payment failed, skipping tip processing");
+            continue;
+          }
+
+          console.log(`x402 Tip executed: ${receipt.txHash}`);
 
           const bal: bigint = await tipPool.getBalance();
           const min: bigint = await tipPool.minPayout();

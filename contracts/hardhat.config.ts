@@ -5,8 +5,8 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
-const RPC_URL = process.env.RPC_URL || "";
+const PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
+const RPC_URL = process.env.CRONOS_RPC_URL || "";
 
 const config: HardhatUserConfig = {
   solidity: {

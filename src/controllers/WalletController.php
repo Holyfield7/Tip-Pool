@@ -32,7 +32,6 @@ class WalletController
                 "user_id" => (int)$wallet['user_id'],
                 "balance" => (float)$wallet['balance']
             ]);
-
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
@@ -47,7 +46,7 @@ class WalletController
     public function credit()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        
+
         if (!isset($data['user_id']) || !isset($data['amount'])) {
             http_response_code(400);
             echo json_encode(["error" => "user_id and amount are required"]);
@@ -68,9 +67,9 @@ class WalletController
             $stmt->execute([$amount, $userId]);
 
             if ($stmt->rowCount() === 0) {
-                 http_response_code(404);
-                 echo json_encode(["error" => "Wallet not found"]);
-                 return;
+                http_response_code(404);
+                echo json_encode(["error" => "Wallet not found"]);
+                return;
             }
 
             echo json_encode([
@@ -78,7 +77,6 @@ class WalletController
                 "user_id" => $userId,
                 "amount_added" => $amount
             ]);
-
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
@@ -105,15 +103,15 @@ class WalletController
         $amount = $data['amount'];
 
         if ($amount <= 0) {
-             http_response_code(400);
-             echo json_encode(["error" => "Amount must be positive"]);
-             return;
+            http_response_code(400);
+            echo json_encode(["error" => "Amount must be positive"]);
+            return;
         }
-        
+
         if ($fromId == $toId) {
-             http_response_code(400);
-             echo json_encode(["error" => "Cannot tip yourself"]);
-             return;
+            http_response_code(400);
+            echo json_encode(["error" => "Cannot tip yourself"]);
+            return;
         }
 
         try {
@@ -138,11 +136,11 @@ class WalletController
             // Add to receiver
             $stmt = $this->db->prepare("UPDATE wallets SET balance = balance + ? WHERE user_id = ?");
             $stmt->execute([$amount, $toId]);
-            
+
             if ($stmt->rowCount() === 0) {
                 throw new Exception("Receiver wallet not found");
             }
-            
+
             // Record tip
             $stmt = $this->db->prepare("INSERT INTO tips (from_user_id, to_user_id, amount, status) VALUES (?, ?, ?, 'pending')");
             $stmt->execute([$fromId, $toId, $amount]);
@@ -155,7 +153,6 @@ class WalletController
                 "to_user_id" => $toId,
                 "amount" => $amount
             ]);
-
         } catch (Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
@@ -189,7 +186,7 @@ class WalletController
     public function markTipProcessed()
     {
         $data = json_decode(file_get_contents("php://input"), true);
-        
+
         if (!isset($data['id'])) {
             http_response_code(400);
             echo json_encode(["error" => "tip id is required"]);
@@ -201,6 +198,28 @@ class WalletController
             $stmt->execute([$data['id']]);
 
             echo json_encode(["status" => "processed", "id" => $data['id']]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * LIST TIPS
+     * Route: GET /tips
+     */
+    public function index()
+    {
+        try {
+            $stmt = $this->db->query("
+                SELECT t.*, u1.name as from_name, u2.name as to_name
+                FROM tips t
+                JOIN users u1 ON t.from_user_id = u1.id
+                JOIN users u2 ON t.to_user_id = u2.id
+                ORDER BY t.created_at DESC
+            ");
+            $tips = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($tips);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);

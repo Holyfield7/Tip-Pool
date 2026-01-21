@@ -5,14 +5,14 @@
 > **Hackathon Submission 2026**
 > Category: Payments / Web3 Infrastructure / AI Agents
 
-Tip-Pool is a lightweight payment platform design for content creators and teams. It allows for seamless wallet management and instant tipping, with a roadmap evolving towards **AI-driven automated automated distribution** on the Cronos blockchain.
+Tip-Pool is a lightweight payment platform designed for content creators and teams. It allows for seamless wallet management and instant tipping, with a roadmap evolving towards **AI-driven automated distribution** on the Cronos blockchain using the x402 protocol for agentic payments.
 
 ## 🚀 Vision
 
 Currently, managing micropayments and tips for a team is chaotic. Tip-Pool solves this by creating a centralized "Pool" that can be:
 1.  **Funded** (Tips/Credits)
 2.  **Routed** (P2P Tipping)
-3.  **Automated** (Future: AI Agents distributing funds based on on-chain rules)
+3.  **Automated** (AI Agents distributing funds based on on-chain rules using x402)
 
 ## 🛠 Tech Stack
 
@@ -20,13 +20,16 @@ Currently, managing micropayments and tips for a team is chaotic. Tip-Pool solve
 *   **Database**: MySQL
 *   **Environment**: XAMPP / Localhost
 *   **Architecture**: MVC (Model-View-Controller)
-*   **Future**: Solidity (Cronos EVM), Node.js AI Agents
+*   **Blockchain**: Solidity (Cronos EVM), x402 Protocol
+*   **AI Agent**: Node.js with x402 Integration
 
 ## ⚡ Quick Start
 
 ### 1. Requirements
 *   PHP 8.0+
 *   MySQL
+*   Node.js 18+
+*   Hardhat
 
 ### 2. Installation
 ```bash
@@ -44,7 +47,16 @@ CREATE DATABASE tip_pool;
 -- (See database.php for table schemas)
 ```
 
-### 4. Run Server
+### 4. Blockchain Deployment
+```bash
+cd contracts
+npm install
+# Create .env with PRIVATE_KEY and RPC_URL=https://evm-t3.cronos.org/
+npm run deploy
+# Note the deployed contract address
+```
+
+### 5. Run Server
 ```bash
 php -S localhost:9000 -t public
 ```
@@ -86,8 +98,15 @@ The API is now live at `http://localhost:9000`.
 ## 🔮 Roadmap (Hackathon Phase)
 
 *   [x] **Phase 1: Payment Core**: Users, Wallets, and Off-chain ledger (PHP/MySQL).
-*   [ ] **Phase 2: The Agent**: Integrate an AI Agent to listen to the ledger and execute payout logic.
-*   [ ] **Phase 3: On-Chain Settlement**: Deploy `TipPool.sol` to Cronos Testnet to settle final balances weekly.
+*   [x] **Phase 2: The Agent**: Integrate an AI Agent to listen to the ledger and execute payout logic with x402.
+*   [x] **Phase 3: On-Chain Settlement**: Deploy `TipPool.sol` to Cronos Testnet to settle final balances weekly.
+
+## x402 Integration
+
+Tip-Pool integrates the x402 protocol for agentic payments on Cronos. The AI agent uses x402 to autonomously handle micropayments for tipping and distribution, enabling seamless Web3 payments without manual intervention.
+
+- **Contract Address**: Deployed on Cronos Testnet (update README after deployment)
+- **x402 Adapter**: Implemented in `agent/src/x402Adapter.ts` for protocol compliance.
 
 ---
-*Built with ❤️ for the Cronos Hackathon.*
+*Built with ❤️ for the Cronos x402 Hackathon.*

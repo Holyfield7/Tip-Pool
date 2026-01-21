@@ -66,11 +66,34 @@ class UserController
                 "user_id" => (int)$userId,
                 "wallet_balance" => 0
             ]);
-
         } catch (Exception $e) {
             // Rollback on failure
             $this->db->rollBack();
 
+            http_response_code(500);
+            echo json_encode([
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * LIST USERS
+     * Route: GET /users
+     */
+    public function index()
+    {
+        try {
+            $stmt = $this->db->query("
+                SELECT u.id, u.name, u.email, w.balance
+                FROM users u
+                LEFT JOIN wallets w ON u.id = w.user_id
+                ORDER BY u.id DESC
+            ");
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode($users);
+        } catch (Exception $e) {
             http_response_code(500);
             echo json_encode([
                 "error" => $e->getMessage()
