@@ -63,7 +63,7 @@ export class X402Adapter {
       const amountUnits = ethers.parseUnits(payment.amount, 6);
 
       // Approve TipPool to spend USDC.e
-      const approveTx = await this.usdcContract.approve(await this.tipPoolContract.getAddress(), amountUnits);
+      const approveTx = await this.usdcContract.approve(this.tipPoolContract.target, amountUnits);
       await approveTx.wait();
 
       // Execute tip via x402 protocol

@@ -15,12 +15,13 @@ const TIPPOOL_ADDRESS = process.env.TIPPOOL_ADDRESS || "";
 const USDC_ADDRESS = "0xc01efAaF7C5C61bEbFAeb358E1161b537b8bC0e0"; // USDC.e on Cronos testnet
 
 const TIPPOOL_ABI = [
-  "event TipReceived(address indexed from, uint256 amount)",
+  "function tip(uint256 amount)",
   "function getBalance() view returns (uint256)",
   "function minPayout() view returns (uint256)",
   "function distribute()",
   "function getRecipients() view returns (address[] memory, uint256[] memory)",
   "function setRecipients(address[] calldata _recipients, uint256[] calldata _bps)",
+  "event TipReceived(address indexed from, uint256 amount)",
   "event PayoutExecuted(uint256 total, address[] recipients, uint256[] amounts)"
 ];
 
