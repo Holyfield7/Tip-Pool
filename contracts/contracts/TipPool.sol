@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-interface IERC20 {
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    function balanceOf(address account) external view returns (uint256);
-}
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TipPool {
     address public owner;
@@ -76,7 +73,7 @@ contract TipPool {
 
     // Distribute
     function distribute() external {
-        uint256 balance = address(this).balance;
+        uint256 balance = paymentToken.balanceOf(address(this));
         require(balance >= minPayout && balance > 0, "Threshold not met or empty");
         require(recipientsList.length > 0, "No recipients");
 

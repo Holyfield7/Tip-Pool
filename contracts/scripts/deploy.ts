@@ -1,13 +1,12 @@
-import * as dotenv from 'dotenv';
 import { ethers } from 'hardhat';
 
-dotenv.config();
-
 async function main() {
+  console.log("Starting deployment...");
+
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with:", deployer.address);
 
-  // USDC.e on Cronos testnet (you provided)
+  // USDC.e on Cronos testnet
   const usdcAddress = "0xc01efAaF7C5C61bEbFAeb358E1161b537b8bC0e0";
   // Min payout: 1 USDC.e (6 decimals, so 1e6)
   const minPayout = ethers.parseUnits("1", 6);
