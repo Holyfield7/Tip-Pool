@@ -44,8 +44,10 @@ interface ActivityItem {
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+import LandingPage from './components/LandingPage';
+
 function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'directory' | 'create-user' | 'hackathon'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'landing' | 'dashboard' | 'directory' | 'create-user' | 'hackathon'>('landing');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [activities, setActivities] = useState<ActivityItem[]>([
     { id: '1', type: 'info', text: 'Agent initialized on Cronos EVM Testnet', time: new Date().toLocaleTimeString() },
@@ -65,13 +67,15 @@ function App() {
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
+    if (activeTab === 'landing') return; // Don't fetch on landing
+
     fetchUsers();
     fetchTips();
     const interval = setInterval(() => {
       fetchTips();
     }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeTab]);
 
   const fetchUsers = async () => {
     try {
@@ -197,13 +201,17 @@ function App() {
     showMessage('success', 'Copied to clipboard!');
   };
 
+  if (activeTab === 'landing') {
+    return <LandingPage />;
+  }
+
   return (
     <div className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">
       <img src="/assets/logo.png" alt="" className="watermark" />
 
       <header className="mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          <div className="relative group cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+          <div className="relative group cursor-pointer" onClick={() => setActiveTab('landing')}>
             <div className="absolute inset-0 bg-accent-primary blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
             <img src="/assets/logo.png" alt="Tip Pool Logo" className="w-12 h-12 relative z-10 hover-scale" />
           </div>
