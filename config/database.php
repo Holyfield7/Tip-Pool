@@ -2,6 +2,6 @@
 
 return [
     'dsn' => getenv('DB_DSN') ?: 'sqlite:' . __DIR__ . '/../database.sqlite',
-    'user' => null,
-    'pass' => null,
+    'user' => getenv('DB_USER') ?: 'root',
+    'pass' => getenv('DB_PASS') ?: '',
 ];

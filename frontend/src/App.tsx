@@ -42,7 +42,15 @@ interface ActivityItem {
   time: string;
 }
 
+
 const API_URL = import.meta.env.VITE_API_URL || '';
+
+// Add type for window.ethereum
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 import LandingPage from './components/LandingPage';
 
@@ -205,11 +213,27 @@ function App() {
     return <LandingPage />;
   }
 
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setWalletAddress(accounts[0]);
+        showMessage('success', 'Wallet Connected: ' + accounts[0].slice(0, 6) + '...');
+      } catch (err) {
+        showMessage('error', 'Failed to connect wallet');
+      }
+    } else {
+      showMessage('error', 'Please install MetaMask or a Web3 Wallet');
+    }
+  };
+
   return (
     <div className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">
       <img src="/assets/logo.png" alt="" className="watermark" />
 
-      <header className="mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+      <header className="mb-12 flex flex-col lg:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="relative group cursor-pointer" onClick={() => setActiveTab('landing')}>
             <div className="absolute inset-0 bg-accent-primary blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
@@ -226,20 +250,35 @@ function App() {
           </div>
         </div>
 
-        <nav className="flex glass-panel p-1.5 gap-1">
-          <button onClick={() => setActiveTab('dashboard')} className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}>
-            <div className="flex items-center gap-2"><Wallet size={16} /> Dashboard</div>
+        <div className="flex gap-4 items-center">
+          <nav className="flex glass-panel p-1.5 gap-1 overflow-x-auto max-w-full custom-scrollbar">
+            <button onClick={() => setActiveTab('dashboard')} className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}>
+              <div className="flex items-center gap-2 whitespace-nowrap"><Wallet size={16} /> Dashboard</div>
+            </button>
+            <button onClick={() => setActiveTab('directory')} className={`nav-tab ${activeTab === 'directory' ? 'active' : ''}`}>
+              <div className="flex items-center gap-2 whitespace-nowrap"><Users size={16} /> Directory</div>
+            </button>
+            <button onClick={() => setActiveTab('create-user')} className={`nav-tab ${activeTab === 'create-user' ? 'active' : ''}`}>
+              <div className="flex items-center gap-2 whitespace-nowrap"><PlusCircle size={16} /> Register</div>
+            </button>
+            <button onClick={() => setActiveTab('hackathon')} className={`nav-tab ${activeTab === 'hackathon' ? 'active' : ''}`}>
+              <div className="flex items-center gap-2 whitespace-nowrap"><Award size={16} /> Hackathon</div>
+            </button>
+          </nav>
+
+          <button onClick={connectWallet} className="primary px-6 py-2 md:py-3 text-sm flex items-center gap-2 whitespace-nowrap w-full sm:w-auto justify-center">
+            {walletAddress ? (
+              <>
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </>
+            ) : (
+              <>
+                <Wallet size={16} /> Connect Wallet
+              </>
+            )}
           </button>
-          <button onClick={() => setActiveTab('directory')} className={`nav-tab ${activeTab === 'directory' ? 'active' : ''}`}>
-            <div className="flex items-center gap-2"><Users size={16} /> Directory</div>
-          </button>
-          <button onClick={() => setActiveTab('create-user')} className={`nav-tab ${activeTab === 'create-user' ? 'active' : ''}`}>
-            <div className="flex items-center gap-2"><PlusCircle size={16} /> Register</div>
-          </button>
-          <button onClick={() => setActiveTab('hackathon')} className={`nav-tab ${activeTab === 'hackathon' ? 'active' : ''}`}>
-            <div className="flex items-center gap-2"><Award size={16} /> Hackathon</div>
-          </button>
-        </nav>
+        </div>
       </header>
 
       <AnimatePresence>

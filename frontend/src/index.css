@@ -14,10 +14,36 @@
   --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
+@media (max-width: 768px) {
+  :root {
+    --glass-bg: hsla(222, 47%, 15%, 0.85);
+  }
+}
+
+/* Scrollbar Styling - Cross-browser support */
 * {
   box-sizing: border-box;
+  /* Standard: Firefox and Chrome 121+ */
   scrollbar-width: thin;
   scrollbar-color: var(--accent-primary) transparent;
+}
+
+/* WebKit: Chrome (< 121), Safari, Edge, and iOS */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--accent-primary);
+  border-radius: 20px;
+  border: 2px solid transparent;
+  /* padding effect */
+  background-clip: content-box;
 }
 
 body {
@@ -51,8 +77,8 @@ body {
 /* Premium Layout Components */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: 1.5rem;
   box-shadow: var(--card-shadow);
@@ -154,6 +180,12 @@ h1 {
   font-size: 2.5rem;
   letter-spacing: -0.02em;
   line-height: 1.1;
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
 }
 
 .gradient-text {
@@ -676,6 +708,10 @@ label {
   50% {
     opacity: .5;
   }
+}
+
+.animate-delay-1s {
+  animation-delay: 1s;
 }
 
 .max-w-7xl {
